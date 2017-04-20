@@ -9,31 +9,38 @@ const initialState = {
 const SEARCH = 'SEARCH';
 const CHANGE_KEY = 'CHANGE_KEY';
 const RANDO = 'RANDO';
+const SET_QUERY = 'SET_QUERY';
 
-const searchUsers = (query, key) => users.filter(user => user[key].includes(query))
+const searchUsers = (key, query) => users.filter(user => user[key].includes(query))
 
-const calculateResults = (state, action) =>
-  state.searchKey === 'all'
+const calculateResults = (key, query) =>
+  key === 'all'
     ? users
         .filter(user =>
           Object.keys(user)
             .filter(prop =>
               user[prop] instanceof Array
-                ? user[prop].some(item => item.includes(action.query))
-                : user[prop].includes(action.query)
+                ? user[prop].some(item => item.includes(query))
+                : user[prop].includes(query)
             )
             .length
         )
-    : searchUsers(action.query, state.searchKey)
+    : searchUsers(key, query)
 
 export default function userSync(state = initialState, action) {
   switch (action.type) {
+
+    case SET_QUERY:
+      return {
+        ...state,
+        query: action.query
+      }
 
     case CHANGE_KEY:
       return {
         ...state,
         searchKey: action.key,
-        results: calculateResults({searchKey: action.key}, {query: action.query})
+        results: calculateResults(action.key, state.query)
       };
 
     case RANDO:
@@ -45,7 +52,7 @@ export default function userSync(state = initialState, action) {
     case SEARCH:
       return {
         ...state,
-        results: calculateResults(state, action)
+        results: calculateResults(state.searchKey, action.query)
       };
 
     default:
@@ -53,10 +60,14 @@ export default function userSync(state = initialState, action) {
   }
 };
 
-export const updateKey = (key, query) => ({
-  type: CHANGE_KEY,
-  key,
+export const setQuery = query => ({
+  type: SET_QUERY,
   query
+})
+
+export const updateKey = key => ({
+  type: CHANGE_KEY,
+  key
 })
 
 export const performSearch = query => ({
