@@ -1,10 +1,16 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
+import { createEpicMiddleware } from 'redux-observable';
 import thunk from 'redux-thunk';
-import rootReducer from '../reducer/rootReducer';
+import rootReducer, { rootEpic } from '../reducer/rootReducer';
+;
+const epicMiddleware = createEpicMiddleware(rootEpic);
 
 export default function generateStore() {
   return createStore(
     rootReducer,
-    applyMiddleware(thunk)
+    compose(
+      applyMiddleware(thunk),
+      applyMiddleware(epicMiddleware)
+    )
   );
 }
