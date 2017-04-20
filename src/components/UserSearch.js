@@ -16,7 +16,7 @@ export class UserSearch extends Component {
   }
 
   render() {
-    const { results, user } = this.props;
+    const { results, user, updateKey, searchKey } = this.props;
     const { loading } = this.state;
 
     return (
@@ -27,6 +27,14 @@ export class UserSearch extends Component {
         <div>
           <label>search users</label>
           <input ref={el => this.input = el} onChange={this.handleChange} type='text' defaultValue='' />
+          <select onChange={e => updateKey(e.target.value)} value={searchKey}>
+            {
+              ['name', 'github', 'interests', 'all']
+                .map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))
+            }
+          </select>
         </div>
         {
           loading ? (
@@ -39,7 +47,10 @@ export class UserSearch extends Component {
             {
               results.map((result, index) => (
                 <div key={index}>
-                  {result.name}
+                  <span>{result.name}:</span>
+                  <span style={{fontStyle: 'italic'}}>
+                    {JSON.stringify(searchKey === 'all' ? result : result[searchKey], null, 2)}
+                  </span>
                 </div>
               ))
             }
@@ -52,8 +63,8 @@ export class UserSearch extends Component {
 }
 
 const mapStateToProps = state => {
-  const { results = [], user } = state.sync;
-  return {results, user};
+  const { results = [], user, searchKey } = state.sync;
+  return {results, user, searchKey};
 };
 
 export default connect(mapStateToProps, userActions)(UserSearch);

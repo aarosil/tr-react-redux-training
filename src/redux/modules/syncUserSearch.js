@@ -10,6 +10,22 @@ const SEARCH = 'SEARCH';
 const CHANGE_KEY = 'CHANGE_KEY';
 const RANDO = 'RANDO';
 
+const searchUsers = (query, key) => users.filter(user => user[key].includes(query))
+
+const calculateResults = (state, action) =>
+  state.searchKey === 'all'
+    ? users
+        .filter(user =>
+          Object.keys(user)
+            .filter(prop =>
+              user[prop] instanceof Array
+                ? user[prop].some(item => item.includes(action.query))
+                : user[prop].includes(action.query)
+            )
+            .length
+        )
+    : searchUsers(action.query, state.searchKey)
+
 export default function userSync(state = initialState, action) {
   switch (action.type) {
 
@@ -26,18 +42,20 @@ export default function userSync(state = initialState, action) {
       }
 
     case SEARCH:
-      const results = action.query.length
-        ? users.filter(user => user[state.searchKey].includes(action.query))
-        : []
       return {
         ...state,
-        results
+        results: calculateResults(state, action)
       };
 
     default:
       return state;
   }
 };
+
+export const updateKey = key => ({
+  type: CHANGE_KEY,
+  key
+})
 
 export const performSearch = query => ({
   type: SEARCH,
