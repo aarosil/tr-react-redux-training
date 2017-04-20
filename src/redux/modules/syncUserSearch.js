@@ -35,3 +35,10 @@ export const performSearch = query => ({
   type: SEARCH,
   query
 });
+
+export const thunkPerformSearch = query => (dispatch, getState) =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(dispatch(performSearch(query)));
+    }, 250)
+  });
