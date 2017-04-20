@@ -16,7 +16,7 @@ export class UserSearch extends Component {
   }
 
   render() {
-    const { results } = this.props;
+    const { results, user } = this.props;
     const { loading } = this.state;
 
     return (
@@ -34,6 +34,9 @@ export class UserSearch extends Component {
           ) : (
             <div>
             {
+              !!user && <img src={user.picture.thumbnail} alt='rando' />
+            }
+            {
               results.map((result, index) => (
                 <div key={index}>
                   {result.name}
@@ -49,8 +52,8 @@ export class UserSearch extends Component {
 }
 
 const mapStateToProps = state => {
-  const { results = [] } = state.sync;
-  return {results};
+  const { results = [], user } = state.sync;
+  return {results, user};
 };
 
 export default connect(mapStateToProps, userActions)(UserSearch);
