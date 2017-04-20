@@ -27,7 +27,7 @@ export class UserSearch extends Component {
         <div>
           <label>search users</label>
           <input ref={el => this.input = el} onChange={this.handleChange} type='text' defaultValue='' />
-          <select onChange={e => updateKey(e.target.value)} value={searchKey}>
+          <select onChange={e => updateKey(e.target.value, this.input.value)} value={searchKey}>
             {
               ['name', 'github', 'interests', 'all']
                 .map(option => (

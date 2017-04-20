@@ -32,7 +32,8 @@ export default function userSync(state = initialState, action) {
     case CHANGE_KEY:
       return {
         ...state,
-        searchKey: action.key
+        searchKey: action.key,
+        results: calculateResults({searchKey: action.key}, {query: action.query})
       };
 
     case RANDO:
@@ -52,9 +53,10 @@ export default function userSync(state = initialState, action) {
   }
 };
 
-export const updateKey = key => ({
+export const updateKey = (key, query) => ({
   type: CHANGE_KEY,
-  key
+  key,
+  query
 })
 
 export const performSearch = query => ({
