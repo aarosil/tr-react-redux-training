@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import UserSearch from './components/UserSearch';
 
 class App extends Component {
   render() {
@@ -7,9 +8,7 @@ class App extends Component {
         <div>
           <h2>Welcome to React/Redux training</h2>
         </div>
-        <p>
-          Yeah dawg!
-        </p>
+        <UserSearch />
       </div>
     );
   }
