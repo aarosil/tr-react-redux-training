@@ -1,10 +1,7 @@
-const initialState = {};
+import { combineReducers } from 'redux';
 
-function rootReducer(state = initialState, action) {
-  switch (action.type) {
-    default:
-      return state;
-  }
-}
+import sync from '../modules/syncUserSearch';
 
-export default rootReducer;
+export default combineReducers({
+  sync
+});
