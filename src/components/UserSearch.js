@@ -3,22 +3,8 @@ import { connect } from 'react-redux';
 import * as userActions from '../redux/modules/syncUserSearch';
 
 export class UserSearch extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {loading: false};
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  handleChange() {
-    this.setState({loading: true});
-    this.props.setQuery(this.input.value)
-    this.props.thunkPerformSearch(this.input.value)
-      .then(() => this.setState({loading: false}));
-  }
-
   render() {
-    const { results, user, updateKey, searchKey } = this.props;
-    const { loading } = this.state;
+    const { results, user, setQuery, updateKey, searchKey, query, loading } = this.props;
 
     return (
       <div>
@@ -27,7 +13,7 @@ export class UserSearch extends Component {
         </h4>
         <div>
           <label>search users</label>
-          <input ref={el => this.input = el} onChange={this.handleChange} type='text' defaultValue='' />
+          <input onChange={e => setQuery(e.target.value)} type='text' value={query}/>
           <select onChange={e => updateKey(e.target.value)} value={searchKey}>
             {
               ['name', 'github', 'interests', 'all']
@@ -64,8 +50,8 @@ export class UserSearch extends Component {
 }
 
 const mapStateToProps = state => {
-  const { results = [], user, searchKey } = state.sync;
-  return {results, user, searchKey};
+  const { results = [], user, searchKey, query, loading } = state.sync;
+  return {results, user, searchKey, query, loading};
 };
 
 export default connect(mapStateToProps, userActions)(UserSearch);

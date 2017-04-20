@@ -1,15 +1,19 @@
 import users from './userDb';
 import axios from 'axios';
+import { Observable } from 'rxjs';
+import { combineEpics } from 'redux-observable';
 
 const initialState = {
+  query: '',
   results: [],
   searchKey: 'name'
 }
 
-const SEARCH = 'SEARCH';
 const CHANGE_KEY = 'CHANGE_KEY';
 const RANDO = 'RANDO';
 const SET_QUERY = 'SET_QUERY';
+const UPDATE_RESULTS = 'UPDATE_RESULTS';
+const START_LOAD = 'START_LOAD';
 
 const searchUsers = (key, query) => users.filter(user => user[key].includes(query))
 
@@ -30,6 +34,12 @@ const calculateResults = (key, query) =>
 export default function userSync(state = initialState, action) {
   switch (action.type) {
 
+    case START_LOAD:
+      return {
+        ...state,
+        loading: true
+      }
+
     case SET_QUERY:
       return {
         ...state,
@@ -39,21 +49,21 @@ export default function userSync(state = initialState, action) {
     case CHANGE_KEY:
       return {
         ...state,
-        searchKey: action.key,
-        results: calculateResults(action.key, state.query)
+        searchKey: action.key
       };
 
     case RANDO:
       return {
         ...state,
-        user: action.rando
+        user: action.rando,
+        loading: false
       }
 
-    case SEARCH:
+    case UPDATE_RESULTS:
       return {
         ...state,
-        results: calculateResults(state.searchKey, action.query)
-      };
+        results: action.results
+      }
 
     default:
       return state;
@@ -65,31 +75,31 @@ export const setQuery = query => ({
   query
 })
 
-export const performSearch = query => ({
-  type: SEARCH,
-  query
-});
-
-const updateRando = rando => ({
-  type: RANDO,
-  rando
+export const updateKey = key => ({
+  type: CHANGE_KEY,
+  key
 })
 
-const getRandomUser = () => (dispatch, getState) =>
-  axios.get('https://randomuser.me/api')
-    .then(({data}) => dispatch(updateRando(data.results[0])))
+const getRando = () => axios.get('https://randomuser.me/api');
 
+const searchEpic = (action$, {getState}) =>
+  action$.filter(({type}) => [SET_QUERY, CHANGE_KEY].includes(type))
+    .switchMap(() => {
+      const {searchKey: key, query} = getState().sync;
+      return Observable.merge(
+        Observable.of({
+          type: UPDATE_RESULTS,
+          results: calculateResults(key, query)}),
 
-export const thunkPerformSearch = query => (dispatch, getState) =>
-  dispatch(getRandomUser())
-    .then(() => dispatch(performSearch(query)))
+        Observable.fromPromise(getRando())
+          .map(({data}) => ({
+            type: RANDO,
+            rando: data.results[0]
+          }))
+      )
+      .startWith({type: START_LOAD})
+    })
 
-export const updateKey = key => (dispatch, getState) => {
-  dispatch({
-    type: CHANGE_KEY,
-    key
-  })
-  const state = getState();
-  const { query } = state.sync;
-  return dispatch(thunkPerformSearch(query))
-}
+export const syncEpic = combineEpics(
+  searchEpic
+)
