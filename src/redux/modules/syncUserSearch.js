@@ -65,11 +65,6 @@ export const setQuery = query => ({
   query
 })
 
-export const updateKey = key => ({
-  type: CHANGE_KEY,
-  key
-})
-
 export const performSearch = query => ({
   type: SEARCH,
   query
@@ -88,3 +83,13 @@ const getRandomUser = () => (dispatch, getState) =>
 export const thunkPerformSearch = query => (dispatch, getState) =>
   dispatch(getRandomUser())
     .then(() => dispatch(performSearch(query)))
+
+export const updateKey = key => (dispatch, getState) => {
+  dispatch({
+    type: CHANGE_KEY,
+    key
+  })
+  const state = getState();
+  const { query } = state.sync;
+  return dispatch(thunkPerformSearch(query))
+}
