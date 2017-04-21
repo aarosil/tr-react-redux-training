@@ -14,6 +14,7 @@ const RANDO = 'RANDO';
 const SET_QUERY = 'SET_QUERY';
 const UPDATE_RESULTS = 'UPDATE_RESULTS';
 const START_LOAD = 'START_LOAD';
+const QUERY_UPDATED = 'QUERY_UPDATED';
 
 const searchUsers = (key, query) => users.filter(user => user[key].includes(query))
 
@@ -82,8 +83,16 @@ export const updateKey = key => ({
 
 const getRando = () => axios.get('https://randomuser.me/api');
 
+const updateQueryEpic = action$ =>
+  action$.ofType(SET_QUERY)
+    .debounceTime(250)
+    .map(({query}) => (query.length
+      ? {type: QUERY_UPDATED, query}
+      : {type: UPDATE_RESULTS, results: []}
+    ))
+
 const searchEpic = (action$, {getState}) =>
-  action$.filter(({type}) => [SET_QUERY, CHANGE_KEY].includes(type))
+  action$.filter(({type}) => [QUERY_UPDATED, CHANGE_KEY].includes(type))
     .switchMap(() => {
       const {searchKey: key, query} = getState().sync;
       return Observable.merge(
@@ -101,5 +110,6 @@ const searchEpic = (action$, {getState}) =>
     })
 
 export const syncEpic = combineEpics(
+  updateQueryEpic,
   searchEpic
 )
