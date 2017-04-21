@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as userActions from '../redux/modules/syncUserSearch';
+import UserGithubDetail from './UserGithubDetail';
 
 export class UserSearch extends Component {
   render() {
-    const { results, user, setQuery, updateKey, searchKey, query, loading } = this.props;
+    const { results, user, setQuery, updateKey, searchKey, query, loading, selectUser, selectedUser } = this.props;
 
     return (
       <div>
@@ -33,7 +34,7 @@ export class UserSearch extends Component {
             }
             {
               results.map((result, index) => (
-                <div key={index}>
+                <div key={index} onClick={e => selectUser(result)}>
                   <span>{result.name}:</span>
                   <span style={{fontStyle: 'italic'}}>
                     {JSON.stringify(searchKey === 'all' ? result : result[searchKey], null, 2)}
@@ -44,14 +45,15 @@ export class UserSearch extends Component {
             </div>
           )
         }
+        { !!selectedUser && <UserGithubDetail username={selectedUser.github}/>}
       </div>
     )
   }
 }
 
 const mapStateToProps = state => {
-  const { results = [], user, searchKey, query, loading } = state.sync;
-  return {results, user, searchKey, query, loading};
+  const { results = [], user, searchKey, query, loading, selectedUser } = state.sync;
+  return {results, user, searchKey, query, loading, selectedUser};
 };
 
 export default connect(mapStateToProps, userActions)(UserSearch);

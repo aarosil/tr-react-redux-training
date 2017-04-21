@@ -15,6 +15,7 @@ const SET_QUERY = 'SET_QUERY';
 const UPDATE_RESULTS = 'UPDATE_RESULTS';
 const START_LOAD = 'START_LOAD';
 const QUERY_UPDATED = 'QUERY_UPDATED';
+const SELECT_USER = 'SELECT_USER';
 
 const searchUsers = (key, query) => users.filter(user => user[key].includes(query))
 
@@ -66,6 +67,12 @@ export default function userSync(state = initialState, action) {
         results: action.results
       }
 
+    case SELECT_USER:
+      return {
+        ...state,
+        selectedUser: action.user
+      }
+
     default:
       return state;
   }
@@ -79,6 +86,11 @@ export const setQuery = query => ({
 export const updateKey = key => ({
   type: CHANGE_KEY,
   key
+})
+
+export const selectUser = user => ({
+  type: SELECT_USER,
+  user
 })
 
 const getRando = () => axios.get('https://randomuser.me/api');
